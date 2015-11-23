@@ -28,23 +28,23 @@
       <h1>Police Shooting</h1>
       <table style="width:100%" id="table" class="table table-striped">
           <tr>
-            <td></td>
-            <td><b>Men</b></td> 
-            <td><b>Women</b></td>
+            <th></th>
+            <th><b>Men</b></th> 
+            <th><b>Women</b></th>
           </tr>
           <tr>
-            <td><b>White</b></td>
-            <td>478</td> 
-            <td>43</td>
+            <th><b>White</b></th>
+            <td id='whiteMale'></td> 
+            <td id="whiteFemale"></td>
           </tr>
           <tr>
-            <td><b>Non-White</b></td>
-            <td>1249</td> 
-            <td>328</td>
+            <th><b>Non-White</b></th>
+            <td id="nonWhiteMale"></td> 
+            <td id="nonWhiteFemale"></td>
           </tr>
         </table>
 
-        <p>This map shows crowdsourced police shooting data form
+        <p>This map shows crowdsourced police shooting data from
         <a href="http://regressing.deadspin.com/deadspin-police-shooting-database-update-were-still-go-1627414202"> deadspin</a>. Circle color indicates victim's race. Click each point for details. 
         </p>
       <div id="container"></div>
@@ -52,9 +52,8 @@
     </div>
     <script>
 
-      drawMap()
+      drawMap();
 
-      // This is where you should execute your drawMap function
     </script>
   </body>
 </html>

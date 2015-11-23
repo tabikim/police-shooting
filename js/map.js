@@ -1,90 +1,154 @@
 
 // Function to draw your map
 var drawMap = function() {
-
-  // Create map and set view
   var map = L.map("container").setView([33.883, -99.0167], 4);
 
-  // Create a tile layer variable using the appropriate url
   var layer = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png');
 
-  // Add the layer to your map
   layer.addTo(map);
-  // Execute your function to get data
+
   getData(map);
- 
 }
 
 // Function for getting data
 var getData = function(map) {
-
-  // Execute an AJAX request to get the data in data/response.js
    $.ajax({
     url: "data/response.json",
     data: "incidents",
     success: function(data) {
       customBuild(map,data);
+      var shootingCount = dataCount(data);
+      $('#whiteMale').append(shootingCount.whiteMale);
+      $('#whiteFemale').append(shootingCount.whiteFemale);
+      $('#nonWhiteMale').append(shootingCount.nonWhiteMale);
+      $('#nonWhiteFemale').append(shootingCount.nonWhiteFemale);
     },
     dataType: "json"
     })
-  // When your request is successful, call your customBuild function
 }
 
-var unknown = new L.LayerGroup([]);
-var white = new L.LayerGroup([]);
-var black = new L.LayerGroup([]);
-var asian = new L.LayerGroup([]);
-var indian = new L.LayerGroup([]);
-var islander = new L.LayerGroup([]);
-// Loop through your data and add the appropriate layers and points
-
+// creates circle markers for map
 var customBuild = function(map,data) {
+  var unknown =[];
+  var white = [];
+  var black = [];
+  var asian = [];
+  var indian = [];
+  var islander = [];
+  var all = [];
 
-  for(var i = 0; i < data.length; i++) {
-    var latitude = data[i]["lat"];
-    var longitude = data[i]["lng"];
-    var circle = new L.circleMarker([latitude, longitude]);
+  data.map(function(d) {
+    var race = d["Race"];
+    var color;
 
-    var race = data[i]["Race"];
-    if(race == null) {
-      circle.addTo(unknown).bindPopup("Unknown");;
+    var circle = new L.circleMarker([d.lat, d.lng], {
+      color: color
+    });
+
+    circle.bindPopup(race);
+
+    if(race == "Unknown") {
+      circle.setStyle({color: 'purple'});
+      unknown.push(circle);
     } else if(race == "White") {
-      circle.addTo(white).bindPopup("White");
-      circle.setStyle({fillColor:'red'});
+      circle.setStyle({color: 'blue'});
+      white.push(circle);
     } else if(race == "Black or African American") {
-      circle.addTo(black).bindPopup("Black or African American");
-      circle.setStyle({fillColor:'green'});
+      circle.setStyle({color: 'black'});
+      black.push(circle);
     } else if(race == "Asian") {
-      circle.addTo(asian).bindPopup("Asian");
-      circle.setStyle({fillColor:'yellow'});
+      circle.setStyle({color: 'yellow'});
+      asian.push(circle);
     } else if(race == "American Indian or Alaska Native") {
-      circle.addTo(indian).bindPopup("American Indian or Alaska Native");
-      circle.setStyle({fillColor:'purple'});
+      circle.setStyle({color: 'red'});
+      indian.push(circle);
     } else {
-      circle.addTo(islander).bindPopup("Native Hawaiian or Other Pacific Islander");
-      circle.setStyle({fillColor:'black'});
+      circle.setStyle({color: 'green'});
+      islander.push(circle);
     }
+  });
 
-  }
+  var unknowns = new L.LayerGroup(unknown);
+  var whites = new L.LayerGroup(white);
+  var blacks = new L.LayerGroup(black);
+  var asians = new L.LayerGroup(asian);
+  var indians = new L.LayerGroup(indian);
+  var islanders = new L.LayerGroup(islander);
 
-  unknown.addTo(map);
-  white.addTo(map);
-  black.addTo(map);
-  asian.addTo(map);
-  indian.addTo(map);
-  islander.addTo(map);
-  // Be sure to add each layer to the map  
-
-  // Once layers are on the map, add a leaflet controller that shows/hides layers
+  unknowns.addTo(map);
+  whites.addTo(map);
+  blacks.addTo(map);
+  asians.addTo(map);
+  indians.addTo(map);
+  islanders.addTo(map);
 
   var mapView = {
-    "Unknown": unknown,
-    "White": white,
-    "Black or African American": black,
-    "Asian": asian,
-    "American Indian or Alaska Native": indian,
-    "Native Hawaiian or Other Pacific Islander": islander
+    "Unknown": unknowns,
+    "White": whites,
+    "Black or African American": blacks,
+    "Asian": asians,
+    "American Indian or Alaska Native": indians,
+    "Native Hawaiian or Other Pacific Islander": islanders
   };
   L.control.layers(null,mapView).addTo(map);
-  
 }
+
+// counts data of police shooting for table
+var dataCount = function(data) {
+  var whiteMale = 0;
+  var whiteFemale = 0;
+  var nonWhiteMale = 0;
+  var nonWhiteFemale = 0;
+
+  data.map(function(d) {
+    var gender = d["Victim's Gender"];
+    var race = d["Race"];
+    var color;
+
+    if(race == "Unknown" && (gender == "male" || gender == "Male")) {
+      nonWhiteMale++;
+    }
+    if(race == "Unknown" && (gender == "female" || gender == "Female")) {
+      nonWhiteFemale++;
+    }
+    if(race == "White" && (gender == "male" || gender == "Male")) {
+      whiteMale++;
+    }
+    if(race == "White" && (gender == "female" || gender == "Female")) {
+      whiteFemale++;
+    }
+    if(race == "Black or African American" && (gender == "male" || gender == "Male")) {
+      nonWhiteMale++;
+    }
+    if(race == "Black or African American" && (gender == "female" || gender == "Female")) {
+      nonWhiteFemale++;
+    }
+    if(race == "Asian" && (gender == "male" || gender == "Male")) {
+      nonWhiteMale++;
+    }
+    if(race == "Asian" && (gender == "female" || gender == "Female")) {
+      nonWhiteFemale++;
+    }
+    if(race == "American Indian or Alaska Native" && (gender == "male" || gender == "Male")) {
+      nonWhiteMale++;
+    }
+    if(race == "American Indian or Alaska Native" && (gender == "female" || gender == "Female")) {
+      nonWhiteFemale++;
+    }
+    if(race == "Native Hawaiian or Other Pacific Islander" && (gender == "male" || gender == "Male")) {
+      nonWhiteMale++;
+    }
+    if(race == "Native Hawaiian or Other Pacific Islander" && (gender == "female" || gender == "Female")) {
+      nonWhiteFemale++;
+    }
+  });
+
+  // returns object of data of police shooting
+  dataDemographics = {
+    "whiteMale" : whiteMale,
+    "whiteFemale" : whiteFemale,
+    "nonWhiteMale" : nonWhiteMale,
+    "nonWhiteFemale" : nonWhiteFemale
+  }
+  return dataDemographics;
+};
